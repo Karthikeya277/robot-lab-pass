@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
 interface NewRequestDialogProps {
@@ -32,6 +33,7 @@ export const NewRequestDialog: React.FC<NewRequestDialogProps> = ({
   });
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -64,6 +66,7 @@ export const NewRequestDialog: React.FC<NewRequestDialogProps> = ({
 
     try {
       const requestData: any = {
+        user_id: user?.id,
         purpose: formData.purpose,
         request_date: formData.date,
         in_time: formData.inTime,
