@@ -115,6 +115,7 @@ export const StudentRegistration: React.FC<StudentRegistrationProps> = ({ onBack
             register_number: formData.registerNumber,
             year: parseInt(formData.year),
             branch: formData.branch,
+            email: formData.email,
           });
 
         if (profileError) {

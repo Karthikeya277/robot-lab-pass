@@ -58,11 +58,26 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onBack }) => {
     setLoading(true);
 
     try {
-      // Sign in directly with login_id as email format and password
-      const emailFormat = `${loginId}@college.edu`;
-      
+      // Get user email from profile using login_id
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('email, role')
+        .eq('login_id', loginId)
+        .maybeSingle();
+
+      if (profileError || !profileData) {
+        toast({
+          title: "Login Failed",
+          description: "Invalid login ID or user not found",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Sign in with email and password
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: emailFormat,
+        email: profileData.email,
         password: password,
       });
 
@@ -81,16 +96,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onBack }) => {
         description: `Welcome back!`,
       });
 
-      // After successful login, get user profile to determine role
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('user_id', data.user.id)
-        .maybeSingle();
-
-      // Navigate based on role
-      const userRole = profileData?.role || getUserRole(loginId);
-      switch (userRole) {
+      // Navigate based on role from profile
+      switch (profileData.role) {
         case 'student':
           navigate('/student-dashboard');
           break;

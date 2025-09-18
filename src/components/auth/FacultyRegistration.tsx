@@ -113,6 +113,7 @@ export const FacultyRegistration: React.FC<FacultyRegistrationProps> = ({ onBack
             phone_number: formData.phoneNumber,
             department: formData.department,
             designation: formData.designation,
+            email: formData.email,
           });
 
         if (profileError) {
