@@ -121,7 +121,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      setup_admin_profile: {
+        Args: {
+          p_email: string
+          p_login_id: string
+          p_name: string
+          p_phone?: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       user_role: "student" | "faculty" | "admin"
