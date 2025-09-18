@@ -58,39 +58,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onBack }) => {
     setLoading(true);
 
     try {
-      // First, get the user's email from the profile using login_id
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('user_id, role')
-        .eq('login_id', loginId)
-        .maybeSingle();
-
-      if (profileError || !profileData) {
-        toast({
-          title: "Login Failed",
-          description: "Invalid login ID or user not found",
-          variant: "destructive",
-        });
-        setLoading(false);
-        return;
-      }
-
-      // Get user email from auth.users
-      const { data: userData, error: userError } = await supabase.auth.admin.getUserById(profileData.user_id);
+      // Sign in directly with login_id as email format and password
+      const emailFormat = `${loginId}@college.edu`;
       
-      if (userError || !userData.user?.email) {
-        toast({
-          title: "Login Failed", 
-          description: "Unable to retrieve user information",
-          variant: "destructive",
-        });
-        setLoading(false);
-        return;
-      }
-
-      // Sign in with email and password
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: userData.user.email,
+        email: emailFormat,
         password: password,
       });
 
@@ -109,8 +81,16 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onBack }) => {
         description: `Welcome back!`,
       });
 
+      // After successful login, get user profile to determine role
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('user_id', data.user.id)
+        .maybeSingle();
+
       // Navigate based on role
-      switch (profileData.role) {
+      const userRole = profileData?.role || getUserRole(loginId);
+      switch (userRole) {
         case 'student':
           navigate('/student-dashboard');
           break;
